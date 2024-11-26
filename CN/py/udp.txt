@@ -1,0 +1,53 @@
+udp server:
+import socket
+
+# Server details
+PORT = 12345
+BUFFER_SIZE = 1024
+
+# Create a UDP socket
+server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+server_socket.bind(('0.0.0.0', PORT))
+
+print(f"UDP Server listening on port {PORT}...")
+
+while True:
+    # Receive data from client
+    data, client_address = server_socket.recvfrom(BUFFER_SIZE)
+    print(f"Received: {data.decode()} from {client_address}")
+
+    # Send the same data back to the client
+    server_socket.sendto(data, client_address)
+
+# Close the socket (not reachable)
+server_socket.close()
+
+
+udp client:
+import socket
+
+# Server details (to connect to)
+SERVER_IP = '127.0.0.1'  # Local server IP
+PORT = 12345
+BUFFER_SIZE = 1024
+
+# Create a UDP socket
+client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+while True:
+    # Get user input
+    message = input("Enter message to send (type 'exit' to quit): ")
+    
+    if message.lower() == 'exit':
+        print("Exiting client.")
+        break
+
+    # Send message to server
+    client_socket.sendto(message.encode(), (SERVER_IP, PORT))
+
+    # Receive response from server
+    data, server_address = client_socket.recvfrom(BUFFER_SIZE)
+    print(f"Received from server: {data.decode()}")
+
+# Close the client socket
+client_socket.close()

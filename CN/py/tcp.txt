@@ -1,0 +1,70 @@
+tcp server:
+# ---------------------- TCP Server ----------------------
+import socket
+
+# Server details
+PORT = 12345
+BUFFER_SIZE = 1024
+
+# Create a TCP socket
+server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server_socket.bind(('0.0.0.0', PORT))
+server_socket.listen(1)
+
+print(f"TCP Server listening on port {PORT}...")
+
+while True:
+    # Accept a connection from a client
+    client_conn, client_address = server_socket.accept()
+    print(f"Client connected from: {client_address}")
+
+    try:
+        while True:
+            # Receive data from client
+            data = client_conn.recv(BUFFER_SIZE)
+
+            if not data:  # If no data is received, client has disconnected
+                print("Client has disconnected.")
+                break
+            
+            print(f"Received: {data.decode()}")
+            client_conn.sendall(data)  # Echo the received data back to the client
+
+    finally:
+        client_conn.close()  # Close the client connection when done
+        print(f"Connection with {client_address} closed.")
+
+# Close the server socket (not reachable in this example)
+server_socket.close()
+
+
+tcp client:
+# ---------------------- TCP Client ----------------------
+import socket
+
+# Server details (to connect to)
+SERVER_IP = '127.0.0.1'  # Local server IP
+PORT = 12345
+BUFFER_SIZE = 1024
+
+# Create a TCP socket
+client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+client_socket.connect((SERVER_IP, PORT))
+
+print(f"Connected to server at {SERVER_IP}:{PORT}")
+
+try:
+    while True:
+        message = input("Enter a message to send (or 'quit' to exit): ")
+        if message.lower() == "quit":
+            break
+
+        # Send message to server
+        client_socket.sendall(message.encode())
+
+        # Receive response from server
+        data = client_socket.recv(BUFFER_SIZE)
+        print(f"Received: {data.decode()}")
+
+finally:
+    client_socket.close()
